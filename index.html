@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>1121資訊板</title>
+    <title>1127資訊板</title>
     <style>
-        /* 全域基本設定 */
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Microsoft JhengHei", sans-serif; }
         body { background-color: #000000; color: #FFFFFF; height: 100vh; overflow: hidden; display: flex; flex-direction: column; padding: 5px; }
         #update-header { text-align: center; font-size: 20px; color: #888888; padding: 2px 0; flex-shrink: 0; }
@@ -47,7 +46,7 @@
         <div class="left-column" id="bus-panel"><div style="color: #555555; font-size: 32px; padding: 20px;">載入中...</div></div>
         <div class="right-column">
             <div class="time-box" id="live-time">00:00</div>
-            <div class="date-box" id="live-date">2026年1月1日 星期一</div>
+            <div class="date-box" id="live-date">--年--月--日 --</div>
             <div class="weather-info-block">
                 <div class="weather-line1"><img id="wx-icon" class="weather-icon" src="" style="display:none;"><span id="curr-temp">--°C</span><span id="curr-humidity" style="margin-left:15px;">💧 --%</span></div>
                 <div class="weather-line2"><span class="temp-min">❄️ <span id="forecast-min">--</span>°C</span><span class="temp-max">☀️ <span id="forecast-max">--</span>°C</span></div>
@@ -66,44 +65,55 @@
             { route: '37B', stopId: '002186', stopName: '置富總站' }, { route: '37X', stopId: '002186', stopName: '置富總站' }
         ];
 
-        async function fetchBusETA() {
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('live-time').innerText = now.toLocaleTimeString('zh-HK', {hour: '2-digit', minute:'2-digit', hour12: false});
+            document.getElementById('live-date').innerText = `${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日 ${['日','一','二','三','四','五','六'][now.getDay()]}`;
+        }
+
+        async function fetchAllData() {
+            updateClock();
+            const now = new Date();
+            document.getElementById('update-header').innerText = `最後更新：${now.toLocaleTimeString()} (每30秒自動刷新)`;
+
+            // 巴士
             const panel = document.getElementById('bus-panel');
             let htmlContent = '';
             for (const config of busConfig) {
                 try {
                     const res = await fetch(`https://rt.data.gov.hk/v1/transport/citybus-nwfb/eta/CTB/${config.stopId}/${config.route}`);
                     const json = await res.json();
-                    
-                    // 【邏輯核心】：過濾 37A, 37B, 37X 循環線往置富方向的資料
-                    let etaList = (json.data || []).filter(item => item.rmk_tc !== "距離太遠，未能提供時間");
-                    if (['37A', '37B', '37X'].includes(config.route)) {
-                        etaList = etaList.filter(item => item.dest_tc && !item.dest_tc.includes('置富'));
-                    }
+                    let etaList = (json.data || []).filter(i => i.rmk_tc !== "距離太遠，未能提供時間");
+                    if (['37A', '37B', '37X'].includes(config.route)) etaList = etaList.filter(i => i.dest_tc && !i.dest_tc.includes('置富'));
                     etaList = etaList.slice(0, 3);
-
-                    let destText = etaList.length > 0 ? `往 ${etaList[0].dest_tc}` : "載入中...";
-                    htmlContent += `<div class="bus-row"><div class="bus-header"><span class="route-badge" style="background-color:${routeColors[config.route]};">${config.route}</span><span class="bus-destination">${destText}</span><span class="bus-station">📍${config.stopName}</span></div><div class="eta-container">`;
-                    
-                    if (etaList.length === 0) htmlContent += `<div style="font-size:28px; color:#555555;">暫無班次資料</div>`;
+                    let dest = etaList.length > 0 ? `往 ${etaList[0].dest_tc}` : "載入中...";
+                    htmlContent += `<div class="bus-row"><div class="bus-header"><span class="route-badge" style="background-color:${routeColors[config.route]}">${config.route}</span><span class="bus-destination">${dest}</span><span class="bus-station">📍${config.stopName}</span></div><div class="eta-container">`;
+                    if (etaList.length === 0) htmlContent += `暫無班次`;
                     else etaList.forEach((eta, i) => {
-                        const mins = Math.max(0, Math.floor((new Date(eta.eta) - new Date()) / 60000));
-                        const timeStr = eta.eta.substring(11, 16);
-                        htmlContent += `<div class="eta-item"><span class="time-normal">${timeStr}</span><span class="${mins < 10 ? 'countdown-urgent' : ''}">(${mins}分)</span>${i < etaList.length - 1 ? ' | ' : ''}</div>`;
+                        const m = Math.max(0, Math.floor((new Date(eta.eta) - new Date()) / 60000));
+                        htmlContent += `<div class="eta-item"><span class="time-normal">${eta.eta.substring(11,16)}</span><span class="${m < 10 ? 'countdown-urgent' : ''}">(${m}分)</span>${i < etaList.length-1 ? ' | ' : ''}</div>`;
                     });
                     htmlContent += `</div></div>`;
-                } catch (e) { console.error(e); }
+                } catch(e) {}
             }
             panel.innerHTML = htmlContent;
+
+            // 天氣
+            try {
+                const rhr = await (await fetch('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=rhrread&lang=tc')).json();
+                document.getElementById('curr-temp').innerText = rhr.temperature.data.find(t => t.place === '香港天文台').value + '°C';
+                document.getElementById('curr-humidity').innerText = '💧 ' + rhr.humidity.data[0].value + '%';
+                document.getElementById('wx-icon').src = `https://www.weather.gov.hk/images/HKOWxIconOutline/pic${rhr.icon[0]}.png`;
+                document.getElementById('wx-icon').style.display = 'inline-block';
+                
+                const fnd = await (await fetch('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=fnd&lang=tc')).json();
+                document.getElementById('forecast-min').innerText = fnd.weatherForecast[0].forecastMintemp.value;
+                document.getElementById('forecast-max').innerText = fnd.weatherForecast[0].forecastMaxtemp.value;
+            } catch(e) {}
         }
 
-        async function updateAll() {
-            const n = new Date();
-            document.getElementById('update-header').innerText = `最後更新：${n.getHours()}:${n.getMinutes()}:${n.getSeconds()} (每30秒自動刷新)`;
-            await fetchBusETA();
-            // 天氣與其他更新邏輯請保持與您原本代碼一致
-        }
-        setInterval(updateAll, 30000);
-        updateAll();
+        setInterval(fetchAllData, 30000);
+        fetchAllData();
     </script>
 </body>
 </html>
