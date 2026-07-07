@@ -25,10 +25,11 @@
 
         /* 巴士樣式 */
         .bus-row { padding: 8px 0; border-bottom: 1px solid #222222; }
-        .bus-header { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
-        .bus-tag { font-weight: bold; font-size: 32px; padding: 2px 14px; border-radius: 12px; min-width: 90px; text-align: center; }
-        .bus-dest { font-size: 32px; font-weight: bold; }
-        .bus-eta-container { font-size: 36px; font-weight: bold; margin-top: 2px; }
+        .bus-header { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; flex-wrap: wrap; }
+        .bus-tag { font-weight: bold; font-size: 30px; padding: 2px 10px; border-radius: 10px; min-width: 80px; text-align: center; }
+        .bus-dest, .bus-stop { font-size: 30px; font-weight: bold; }
+        .bus-stop { color: #aaaaaa; } /* 站點名稱用灰色區分 */
+        .bus-eta-container { font-size: 34px; font-weight: bold; margin-top: 2px; }
         .eta-split { color: #555555; margin: 0 8px; }
         .countdown-urgent { color: #ff4d4d; }
         .countdown-normal { color: #ffffff; }
@@ -114,7 +115,7 @@
                         const mins = Math.max(0, Math.floor((new Date(i.eta) - now)/60000));
                         return `<span class="eta-item">${new Date(i.eta).toLocaleTimeString('zh-HK',{hour:'2-digit',minute:'2-digit'})}<span class="${mins<10?'countdown-urgent':'countdown-normal'}">(${mins}分鐘)</span></span>`;
                     }).join('<span class="eta-split">｜</span>') : '暫無班次';
-                    list.innerHTML += `<div class="bus-row"><div class="bus-header"><span class="bus-tag" style="background-color:${bus.color}">${bus.route}</span><span class="bus-dest">${etas[0]?.dest_tc || ''}</span></div><div class="bus-eta-container">${html}</div></div>`;
+                    list.innerHTML += `<div class="bus-row"><div class="bus-header"><span class="bus-tag" style="background-color:${bus.color}">${bus.route}</span><span class="bus-stop">(${bus.name})</span><span class="bus-dest">往${etas[0]?.dest_tc || ''}</span></div><div class="bus-eta-container">${html}</div></div>`;
                 } catch(e) {}
             }
 
