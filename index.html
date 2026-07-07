@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>1445即時資訊看板</title>
+    <title>1549資訊看板</title>
     <style>
         /* 全域設定與極致緊湊設計 */
         * {
@@ -74,7 +74,7 @@
             margin-right: 12px;
         }
         .bus-stop {
-            color: #FFFFFF; /* 依需求改為白色 */
+            color: #FFFFFF;
         }
         .bus-etas {
             display: flex;
@@ -232,14 +232,14 @@
     <script>
         // ================= 巴士設定 =================
         const busConfig = [
-            { route: '33X', stop: '002184', stopName: '置富1-7座', color: '#1E90FF' }, // 藍色
-            { route: '40', stop: '002184', stopName: '置富1-7座', color: '#FF8C00' },  // 橙色
-            { route: '95C', stop: '002184', stopName: '置富1-7座', color: '#20B2AA' }, // 藍綠色
-            { route: '970X', stop: '002184', stopName: '置富1-7座', color: '#9932CC' }, // 紫色
-            { route: '38', stop: '002190', stopName: '置富總站', color: '#8B4513' },  // 棕色
-            { route: '37A', stop: '002186', stopName: '雅緻洋房', color: '#32CD32' },  // 綠色
-            { route: '37B', stop: '002186', stopName: '雅緻洋房', color: '#008000' },  // 深綠色
-            { route: '37X', stop: '002186', stopName: '雅緻洋房', color: '#6B8E23' }   // 橄欖綠
+            { route: '33X', stop: '002184', stopName: '置富1-7座', color: '#1E90FF' },
+            { route: '40', stop: '002184', stopName: '置富1-7座', color: '#FF8C00' }, 
+            { route: '95C', stop: '002184', stopName: '置富1-7座', color: '#20B2AA' },
+            { route: '970X', stop: '002184', stopName: '置富1-7座', color: '#9932CC' },
+            { route: '38', stop: '002190', stopName: '雅緻洋房', color: '#8B4513' },  // 已更新為雅緻洋房
+            { route: '37A', stop: '002186', stopName: '置富總站', color: '#32CD32' },  // 已更新為置富總站
+            { route: '37B', stop: '002186', stopName: '置富總站', color: '#008000' },  // 已更新為置富總站
+            { route: '37X', stop: '002186', stopName: '置富總站', color: '#6B8E23' }   // 已更新為置富總站
         ];
 
         // 警告信號子類型字典
@@ -325,7 +325,7 @@
                         <div class="bus-etas">`;
 
                     validEtas.forEach((eta, index) => {
-                        const etaTimeStr = eta.eta; // 例：2026-07-07T13:05:00+08:00
+                        const etaTimeStr = eta.eta;
                         const etaDate = new Date(etaTimeStr);
                         const now = new Date();
                         let diffMins = Math.floor((etaDate - now) / 60000);
@@ -425,8 +425,7 @@
                     swtContent.innerHTML = `<div style="color:#FFF;">${swtData.swt[0].desc}</div>`;
                     swtContent.className = ''; 
                     
-                    // 檢查是否需要啟動跑馬燈 (若高度超過外框)
-                    // 稍微延遲以確保 DOM 渲染完成後才計算高度
+                    // 檢查是否需要啟動跑馬燈
                     setTimeout(() => {
                         if (swtContent.offsetHeight > swtWrapper.offsetHeight) {
                             swtContent.classList.add('marquee');
