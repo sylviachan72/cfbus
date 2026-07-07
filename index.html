@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>1101資訊板</title>
+    <title>1112資訊板</title>
     <style>
         /* 全域基本設定 */
         * {
@@ -247,16 +247,16 @@
             '38': '#FF2D55', '37A': '#5AC8FA', '37B': '#FFCC00', '37X': '#E55737'
         };
 
-        // 【修改】加入 directionShort (方向簡稱)，並將 stopName 縮短，方便長者閱讀
+        // 巴士站點保留簡稱，方向將會動態從 API 讀取全稱
         const busConfig = [
-            { route: '33X', stopId: '002184', stopName: '置富1-7座', directionShort: '往西灣河' },
-            { route: '40',  stopId: '002184', stopName: '置富1-7座', directionShort: '往灣仔' },
-            { route: '95C', stopId: '002184', stopName: '置富1-7座', directionShort: '往鴨脷洲' },
-            { route: '970X',stopId: '002184', stopName: '置富1-7座', directionShort: '往長沙灣' },
-            { route: '38',  stopId: '002190', stopName: '雅緻洋房',   directionShort: '往北角' },
-            { route: '37A', stopId: '002186', stopName: '置富總站',   directionShort: '往中環' },
-            { route: '37B', stopId: '002186', stopName: '置富總站',   directionShort: '往金鐘' },
-            { route: '37X', stopId: '002186', stopName: '置富總站',   directionShort: '往金鐘' } // 37X 為置富往金鐘早晨特別線
+            { route: '33X', stopId: '002184', stopName: '置富1-7座' },
+            { route: '40',  stopId: '002184', stopName: '置富1-7座' },
+            { route: '95C', stopId: '002184', stopName: '置富1-7座' },
+            { route: '970X',stopId: '002184', stopName: '置富1-7座' },
+            { route: '38',  stopId: '002190', stopName: '雅緻洋房' },
+            { route: '37A', stopId: '002186', stopName: '置富總站' },
+            { route: '37B', stopId: '002186', stopName: '置富總站' },
+            { route: '37X', stopId: '002186', stopName: '置富總站' } 
         ];
 
         // 天氣警告子類型對應表
@@ -311,13 +311,19 @@
                         .filter(item => item.rmk_tc !== "距離太遠，未能提供時間")
                         .slice(0, 3);
 
+                    // 【修改】直接從 API 讀取巴士方向全稱
+                    let destText = "方向載入中";
+                    if (etaList.length > 0 && etaList[0].dest_tc) {
+                        destText = `往 ${etaList[0].dest_tc}`;
+                    }
+
                     const badgeColor = routeColors[config.route] || '#333333';
 
                     htmlContent += `
                         <div class="bus-row">
                             <div class="bus-header">
                                 <span class="route-badge" style="background-color: ${badgeColor};">${config.route}</span>
-                                <span class="bus-destination">${config.directionShort}</span>
+                                <span class="bus-destination">${destText}</span>
                                 <span class="bus-station">📍${config.stopName}</span>
                             </div>
                             <div class="eta-container">
