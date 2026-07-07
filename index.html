@@ -191,7 +191,7 @@
             align-items: center;
         }
 
-        /* 警告橫排緊湊版 */
+        /* 警告橫排緊湊版：統一紅色圓角底、白字 */
         .warnings-wrapper {
             display: flex;
             flex-wrap: wrap;
@@ -202,14 +202,16 @@
         }
         .warning-badge {
             display: inline-block;
-            font-size: 22px; /* 縮小一點以適應橫排 */
+            background-color: #CC0000;
+            color: #FFFFFF;
+            font-size: 22px;
             font-weight: bold;
             padding: 4px 12px;
             border-radius: 8px;
-            white-space: nowrap; /* 避免單個警告折行 */
+            white-space: nowrap;
         }
         
-        /* 垂直跑馬燈容器（更加緊湊，限高2.5行） */
+        /* 垂直跑馬燈容器（更加緊湊，限高70px） */
         .marquee-container {
             height: 70px;
             overflow: hidden;
@@ -354,40 +356,40 @@
             }
         }
 
-        // 天氣警告代碼轉換器 (辨識子類型與配對顏色)
-        function getWarningStyleAndText(key, warningObj) {
+        // 解析警告子類型（支援具體信號名稱，並回傳統一的紅色圓角樣式）
+        function getDetailedWarningText(key, warningObj) {
             const code = warningObj.code;
-            let text = warningObj.name; 
-            let bgColor = '#CC0000'; // 預設深紅
-            let color = '#FFFFFF';
-            let border = 'none';
+            let text = warningObj.name || key;
 
             if (key === 'WRAIN') {
-                if (code === 'AMBER') { text = '黃色暴雨警告'; bgColor = '#FFCC00'; color = '#000000'; }
-                else if (code === 'RED') { text = '紅色暴雨警告'; bgColor = '#CC0000'; }
-                else if (code === 'BLACK') { text = '黑色暴雨警告'; bgColor = '#000000'; border = '1px solid #FFFFFF'; }
+                if (code === 'AMBER') text = '黃色暴雨警告信號';
+                else if (code === 'RED') text = '紅色暴雨警告信號';
+                else if (code === 'BLACK') text = '黑色暴雨警告信號';
             } else if (key === 'WTCSGNL') {
-                bgColor = '#CC0000';
                 if (code === 'TC1') text = '一號戒備信號';
                 else if (code === 'TC3') text = '三號強風信號';
-                else if (code === 'TC8NE') text = '八號東北烈風或暴風信號';
-                else if (code === 'TC8NW') text = '八號西北烈風或暴風信號';
-                else if (code === 'TC8SE') text = '八號東南烈風或暴風信號';
-                else if (code === 'TC8SW') text = '八號西南烈風或暴風信號';
-                else if (code === 'TC9') text = '九號烈風或暴風風力增強信號';
+                else if (code === 'TC8NE') text = '八號東北烈風信號';
+                else if (code === 'TC8NW') text = '八號西北烈風信號';
+                else if (code === 'TC8SE') text = '八號東南烈風信號';
+                else if (code === 'TC8SW') text = '八號西南烈風信號';
+                else if (code === 'TC9') text = '九號烈風信號';
                 else if (code === 'TC10') text = '十號颶風信號';
             } else if (key === 'WFIRE') {
-                if (code === 'Y') { text = '黃色火災危險警告'; bgColor = '#FFCC00'; color = '#000000'; }
-                else if (code === 'R') { text = '紅色火災危險警告'; bgColor = '#CC0000'; }
+                if (code === 'Y') text = '黃色火災危險警告';
+                else if (code === 'R') text = '紅色火災危險警告';
             } else if (key === 'WHOT') {
-                text = '酷熱天氣警告'; bgColor = '#FF6600';
+                text = '酷熱天氣警告';
             } else if (key === 'WCOLD') {
-                text = '寒冷天氣警告'; bgColor = '#0066CC';
+                text = '寒冷天氣警告';
             } else if (key === 'WTS') {
-                text = '雷暴警告'; bgColor = '#666666';
+                text = '雷暴警告';
+            } else if (key === 'WLAND') {
+                text = '山泥傾瀉警告';
+            } else if (key === 'WFROST') {
+                text = '霜凍警告';
             }
 
-            return { text, bgColor, color, border };
+            return text;
         }
 
         async function updateWeather() {
@@ -423,7 +425,7 @@
                     }
                 }
 
-                // 3. 天氣警告 (子類型解析 + 橫向緊湊排列)
+                // 3. 天氣警告 (統一紅色圓角底 / 白字)
                 const warnResponse = await fetch('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=warnsum&lang=tc');
                 const warnText = await warnResponse.text();
                 let warnData = null;
@@ -438,21 +440,19 @@
                 const alertPanel = document.getElementById('alert-panel');
                 let hasAlerts = false;
                 
-                // 組合警告平牌的 HTML
                 let warningsWrapperHtml = '<div class="warnings-wrapper">';
                 if (warnData && typeof warnData === 'object') {
                     Object.keys(warnData).forEach(key => {
                         const warning = warnData[key];
-                        if (warning && warning.name) {
+                        if (warning && (warning.name || warning.code)) {
                             hasAlerts = true;
-                            const style = getWarningStyleAndText(key, warning);
-                            warningsWrapperHtml += `<div class="warning-badge" style="background-color: ${style.bgColor}; color: ${style.color}; border: ${style.border};">${style.text}</div>`;
+                            const warningText = getDetailedWarningText(key, warning);
+                            warningsWrapperHtml += `<div class="warning-badge">${warningText}</div>`;
                         }
                     });
                 }
                 warningsWrapperHtml += '</div>';
 
-                // 組合跑馬燈的 HTML
                 let marqueeHtml = '';
                 if (swtData && swtData.swt && swtData.swt.length > 0) {
                     let swtTextStr = '';
@@ -472,7 +472,6 @@
                 if (!hasAlerts) {
                     alertPanel.innerHTML = `<div class="no-alerts">現時沒有生效的警告/提示</div>`;
                 } else {
-                    // 如果沒有警告就只顯示提示跑馬燈，反之亦然
                     const finalWarningsHtml = warnData && Object.keys(warnData).length > 0 ? warningsWrapperHtml : '';
                     alertPanel.innerHTML = finalWarningsHtml + marqueeHtml;
                 }
