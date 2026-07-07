@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>1206資訊看板</title>
+    <title>1240資訊看板</title>
     <style>
         /* 全域設定：極致緊湊、純黑背景 */
         * {
@@ -166,10 +166,13 @@
         .temp-max { color: #ff4d4d; }
         .temp-min { color: #4da6ff; }
 
-        /* 天氣警告區塊 */
+        /* 天氣警告區塊 - 修改為平排緊湊顯示 */
         .warning-block {
             margin-top: 8px;
-            text-align: center;
+            display: flex;
+            flex-wrap: wrap; /* 允許自動換行平排 */
+            justify-content: center; /* 置中對齊 */
+            gap: 6px; /* 標籤之間的微小間距 */
         }
         .warning-tag {
             background-color: #cc0000; /* 紅色圓角底 */
@@ -178,15 +181,14 @@
             font-weight: bold;
             padding: 4px 12px;
             border-radius: 10px;
-            display: inline-block;
-            margin: 2px;
-            width: 100%;
         }
         .no-warning {
             font-size: 24px;
             color: #666666; /* 較暗的灰色 */
             font-weight: bold;
             padding: 4px 0;
+            width: 100%; /* 確保無警告時文字能單獨佔滿置中 */
+            text-align: center;
         }
 
         /* 特別天氣提示區塊（垂直跑馬燈結構） */
@@ -220,7 +222,7 @@
 </head>
 <body>
 
-    <div class="top-bar">最後更新：<span id="last-update">--:--</span></div>
+    <div class="top-bar">最後更新時間：<span id="last-update">--:--:--</span>(每30秒自動刷新)</div>
 
     <div class="main-container">
         
@@ -477,8 +479,10 @@
                 const data = await response.json();
                 
                 let swtText = '';
-                if (data && data.swfTips && data.swfTips.length > 0) {
-                    data.swfTips.forEach(tip => {
+                
+                // 已經修正為正確的 API 鍵值 data.swt
+                if (data && data.swt && data.swt.length > 0) {
+                    data.swt.forEach(tip => {
                         if (tip.desc) {
                             swtText += `<p>${tip.desc}</p>`;
                         }
@@ -502,12 +506,13 @@
             }
         }
 
-        // 6. 更新頂部的「最後更新時間」 (24小時制)
+        // 6. 更新頂部的「最後更新時間」 (24小時制，包含秒數)
         function updateRefreshTime() {
             const now = new Date();
             const hh = String(now.getHours()).padStart(2, '0');
             const mm = String(now.getMinutes()).padStart(2, '0');
-            document.getElementById('last-update').innerText = `${hh}:${mm}`;
+            const ss = String(now.getSeconds()).padStart(2, '0');
+            document.getElementById('last-update').innerText = `${hh}:${mm}:${ss}`;
         }
 
         // 7. 統籌所有 API 的自動重新整理
