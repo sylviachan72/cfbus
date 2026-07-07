@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>1043資訊板</title>
+    <title>1053資訊板</title>
     <style>
         /* 全域基本設定 */
         * {
@@ -258,6 +258,23 @@
             { route: '37X', stopId: '002186', stopName: '置富花園總站' }
         ];
 
+        // 天氣警告子類型對應表
+        const warningSubtypesMap = {
+            'WFIREY': '黃色火災危險警告',
+            'WFIRER': '紅色火災危險警告',
+            'WRAINA': '黃色暴雨警告信號',
+            'WRAINR': '紅色暴雨警告信號',
+            'WRAINB': '黑色暴雨警告信號',
+            'TC1': '一號戒備信號',
+            'TC3': '三號強風信號',
+            'TC8NE': '八號東北烈風或暴風信號',
+            'TC8SE': '八號東南烈風或暴風信號',
+            'TC8SW': '八號西南烈風或暴風信號',
+            'TC8NW': '八號西北烈風或暴風信號',
+            'TC9': '九號烈風或暴風風力增強信號',
+            'TC10': '十號颶風信號'
+        };
+
         function updateClock() {
             const now = new Date();
             let hours = now.getHours();
@@ -346,7 +363,6 @@
                     const hkoStation = dataRhr.temperature.data.find(t => t.place === '香港天文台');
                     if (hkoStation) hkoTemp = hkoStation.value;
                 }
-                // 修復：已移除地點名稱
                 document.getElementById('curr-temp').innerText = `${hkoTemp}°C`;
 
                 if (dataRhr.humidity && dataRhr.humidity.data && dataRhr.humidity.data[0]) {
@@ -367,7 +383,7 @@
                     document.getElementById('forecast-max').innerText = dataFnd.weatherForecast[0].forecastMaxtemp.value;
                 }
 
-                // 3. 天氣警告 (修復：直接讀取天文台提供的子類型精確名稱 item.name)
+                // 3. 天氣警告 (加入子類型判斷邏輯)
                 const resWarn = await fetch('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=warnsum&lang=tc');
                 const dataWarn = await resWarn.json();
                 const warningPanel = document.getElementById('warning-panel');
@@ -376,14 +392,21 @@
                 if (dataWarn && Object.keys(dataWarn).length > 0) {
                     Object.keys(dataWarn).forEach(key => {
                         const item = dataWarn[key];
-                        if (item && item.name) {
-                            warningBadges += `<span class="warning-badge">${item.name}</span>`;
+                        if (item) {
+                            // 優先使用對應表內的精準子類型名稱
+                            if (item.type && warningSubtypesMap[item.type]) {
+                                warningBadges += `<span class="warning-badge">${warningSubtypesMap[item.type]}</span>`;
+                            } 
+                            // 否則退回使用 API 原本提供的通用名稱 (如: 雷暴警告)
+                            else if (item.name) {
+                                warningBadges += `<span class="warning-badge">${item.name}</span>`;
+                            }
                         }
                     });
                 }
                 warningPanel.innerHTML = warningBadges || `<div class="no-warning">現時沒有生效的警告/提示</div>`;
 
-                // 4. 特別天氣提示 (修復：更正 API 取值路徑為 dataSwt.swt)
+                // 4. 特別天氣提示
                 const resSwt = await fetch('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=swt&lang=tc');
                 const dataSwt = await resSwt.json();
                 const swtPanel = document.getElementById('swt-panel');
