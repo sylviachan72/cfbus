@@ -3,103 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>1630資訊看板 (970X更新版)</title>
+    <title>1633即時資訊看板</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: "Microsoft JhengHei", sans-serif; }
         body { background-color: #000000; color: #FFFFFF; overflow: hidden; display: flex; flex-direction: column; height: 100vh; }
-        ::-webkit-scrollbar { display: none; }
-        #header { text-align: center; color: #AAAAAA; font-size: 12px; padding: 2px 0; background-color: #111; flex-shrink: 0; }
+        #header { text-align: center; color: #AAAAAA; font-size: 12px; padding: 2px 0; background-color: #111; }
         #container { display: flex; flex: 1; height: calc(100vh - 16px); width: 100%; }
-        #left-panel { width: 70%; height: 100%; overflow-y: auto; border-right: 1px solid #333; padding: 2px 4px; }
-        .bus-row { border-bottom: 1px solid #333; padding: 4px 0; font-size: 16px; }
-        .bus-header { display: flex; align-items: center; flex-wrap: wrap; margin-bottom: 2px; }
+        #left-panel { width: 70%; height: 100%; overflow-y: auto; border-right: 1px solid #333; padding: 4px; }
+        .bus-row { border-bottom: 1px solid #333; padding: 4px 0; font-size: 14px; }
+        .bus-header { display: flex; align-items: center; margin-bottom: 2px; }
         .bus-route { border-radius: 4px; padding: 1px 6px; font-weight: bold; margin-right: 6px; color: #FFFFFF; }
-        .bus-dest { color: #FFFFFF; margin-right: 6px; }
-        .bus-stop { color: #FFFFFF; font-size: 14px; }
-        .bus-etas { display: flex; flex-wrap: wrap; gap: 6px; }
-        .eta-item { display: flex; align-items: center; }
-        .eta-dest-change { font-size: 11px; color: #000000; background-color: #FFCC00; padding: 1px 4px; border-radius: 4px; margin-left: 4px; font-weight: bold; }
-        .eta-countdown { margin-left: 2px; }
-        .countdown-red { color: #FF5555; }
-        .countdown-white { color: #FFFFFF; }
-        #right-panel { width: 30%; height: 100%; overflow-y: auto; display: flex; flex-direction: column; padding: 2px 4px; text-align: center; font-size: 14px; }
-        #clock { font-size: 32px; font-weight: bold; line-height: 1; margin-top: 2px; }
-        #date { font-size: 12px; line-height: 1.2; margin-bottom: 4px; }
-        hr { border: 0; height: 1px; background: #333; margin: 4px 0; }
-        .warning-tag { display: inline-block; background-color: #CC0000; color: #FFFFFF; padding: 2px 6px; border-radius: 4px; font-size: 11px; margin-bottom: 2px; }
-        .no-alert { color: #555555; font-size: 11px; }
-        #swt-wrapper { flex: 1; text-align: left; position: relative; overflow: hidden; max-height: 4.5em; font-size: 11px; }
-        #swt-content { position: absolute; top: 0; width: 100%; }
-        .marquee { animation: scrollUp 15s linear infinite; }
-        @keyframes scrollUp { 0% { top: 100%; } 10% { top: 0; } 80% { top: 0; } 100% { top: -100%; } }
+        .eta-dest-change { font-size: 10px; color: #000; background-color: #FFCC00; padding: 0 4px; border-radius: 4px; margin-left: 4px; font-weight: bold; }
+        #right-panel { width: 30%; height: 100%; overflow-y: auto; padding: 4px; text-align: center; font-size: 12px; }
+        #clock { font-size: 28px; font-weight: bold; }
+        .weather-info { font-size: 12px; margin-top: 4px; }
+        .warning-tag { background-color: #CC0000; padding: 2px; border-radius: 4px; margin: 2px 0; display: block; }
     </style>
 </head>
 <body>
     <div id="header">最後更新：載入中...</div>
     <div id="container">
-        <div id="left-panel"><div id="bus-data">載入巴士資訊中...</div></div>
+        <div id="left-panel"><div id="bus-data">載入巴士中...</div></div>
         <div id="right-panel">
             <div id="clock">--:--</div>
-            <div id="date">----年--月--日</div><hr>
-            <div id="warning-container"><div class="no-alert">現時沒有生效的警告</div></div><hr>
-            <div id="swt-wrapper"><div id="swt-content" class="no-alert">現時沒有特別天氣提示</div></div>
+            <div id="date">--月--日</div>
+            <div class="weather-info"><span id="temp">--</span>°C | <span id="hum">--</span>%</div>
+            <div id="warnings" style="margin-top:5px;"></div>
         </div>
     </div>
     <script>
         const busConfig = [
-            { route: '33X', stop: '002184', stopName: '置富1-7座', color: '#1E90FF' },
-            { route: '40', stop: '002184', stopName: '置富1-7座', color: '#FF8C00' },
-            { route: '95C', stop: '002184', stopName: '置富1-7座', color: '#20B2AA' },
-            { route: '970X', stop: '002184', stopName: '置富1-7座', color: '#9932CC' },
-            { route: '38', stop: '002190', stopName: '雅緻洋房', color: '#8B4513' },
-            { route: '37A', stop: '002186', stopName: '置富總站', color: '#32CD32' },
-            { route: '37B', stop: '002186', stopName: '置富總站', color: '#008000' },
-            { route: '37X', stop: '002186', stopName: '置富總站', color: '#6B8E23' }
+            { route: '33X', stop: '002184', color: '#1E90FF' }, { route: '40', stop: '002184', color: '#FF8C00' },
+            { route: '95C', stop: '002184', color: '#20B2AA' }, { route: '970X', stop: '002184', color: '#9932CC' },
+            { route: '38', stop: '002190', color: '#8B4513' }, { route: '37A', stop: '002186', color: '#32CD32' },
+            { route: '37B', stop: '002186', color: '#008000' }, { route: '37X', stop: '002186', color: '#6B8E23' }
         ];
 
-        async function fetchBusData() {
-            try {
-                const results = await Promise.all(busConfig.map(config => 
-                    fetch(`https://rt.data.gov.hk/v1/transport/citybus-nwfb/eta/CTB/${config.stop}/${config.route}`)
-                    .then(res => res.json()).then(data => ({ config, data: data.data || [] }))
-                    .catch(() => ({ config, data: [] }))
-                ));
+        async function updateAll() {
+            // 更新時間
+            const now = new Date();
+            document.getElementById('clock').innerText = now.toLocaleTimeString('zh-HK', {hour:'2-digit', minute:'2-digit'});
+            document.getElementById('date').innerText = (now.getMonth()+1) + '月' + now.getDate() + '日';
+            document.getElementById('header').innerText = '最後更新：' + now.toLocaleTimeString();
 
-                let html = '';
-                results.forEach(result => {
-                    const { config, data } = result;
-                    let validEtas = data.filter(eta => eta.eta && !(['37A','37B','37X'].includes(config.route) && eta.dest_tc && eta.dest_tc.includes('置富')));
-                    validEtas.sort((a, b) => new Date(a.eta) - new Date(b.eta));
-
-                    let mainDest = "未知";
-                    if (config.route === '970X') mainDest = '長沙灣';
-                    else if (config.route === '37A') mainDest = '中環';
-                    else if (config.route === '37B' || config.route === '37X') mainDest = '金鐘';
-                    else if (validEtas.length > 0) mainDest = validEtas[0].dest_tc;
-
-                    html += `<div class="bus-row"><div class="bus-header"><span class="bus-route" style="background-color: ${config.color};">${config.route}</span><span class="bus-dest">往${mainDest}</span><span class="bus-stop">📍${config.stopName}</span></div><div class="bus-etas">`;
-                    
-                    if (validEtas.length === 0) html += `<span style="color:#555;">暫無班次</span>`;
-                    else {
-                        validEtas.slice(0, 3).forEach((eta, index) => {
-                            const diff = Math.max(0, Math.floor((new Date(eta.eta) - new Date()) / 60000));
-                            const timeStr = eta.eta.substring(11, 16);
-                            let currentDest = eta.dest_tc;
-                            let destTag = (config.route === '970X' && currentDest && !currentDest.includes('長沙灣')) ? `<span class="eta-dest-change">${currentDest}</span>` : '';
-                            html += `<div class="eta-item"><span class="eta-time">${timeStr}</span>${destTag}<span class="eta-countdown ${diff < 10 ? 'countdown-red' : 'countdown-white'}">(${diff}分)</span></div>${index < 2 ? '<span style="margin:0 4px;color:#333;">|</span>' : ''}`;
-                        });
-                    }
-                    html += `</div></div>`;
+            // 更新巴士
+            for (let cfg of busConfig) {
+                let res = await fetch(`https://rt.data.gov.hk/v1/transport/citybus-nwfb/eta/CTB/${cfg.stop}/${cfg.route}`).then(r=>r.json());
+                let data = res.data || [];
+                let html = `<div class="bus-row"><div class="bus-header"><span class="bus-route" style="background-color:${cfg.color}">${cfg.route}</span></div><div>`;
+                
+                let etas = data.filter(e => e.eta).sort((a,b) => new Date(a.eta) - new Date(b.eta)).slice(0, 3);
+                etas.forEach(e => {
+                    let diff = Math.max(0, Math.floor((new Date(e.eta) - new Date()) / 60000));
+                    let destTag = (cfg.route === '970X' && e.dest_tc && !e.dest_tc.includes('長沙灣')) ? `<span class="eta-dest-change">${e.dest_tc}</span>` : '';
+                    html += `<div>${e.eta.substring(11,16)} ${destTag} (${diff}分鐘)</div>`;
                 });
-                document.getElementById('bus-data').innerHTML = html;
-            } catch (e) { console.error(e); }
-        }
+                document.getElementById('bus-data').innerHTML += html + `</div></div>`;
+            }
 
-        function initApp() {
-            fetchBusData();
-            setInterval(fetchBusData, 30000);
+            // 更新天氣
+            let w = await fetch('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=rhrread&lang=tc').then(r=>r.json());
+            document.getElementById('temp').innerText = w.temperature.data[0].value;
+            document.getElementById('hum').innerText = w.humidity.data[0].value;
+            
+            let warn = await fetch('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=warnsum&lang=tc').then(r=>r.json());
+            let wHtml = "";
+            for(let key in warn) if(warn[key].code !== "CANCEL") wHtml += `<span class="warning-tag">${warn[key].name}</span>`;
+            document.getElementById('warnings').innerHTML = wHtml;
         }
-        window.onload = initApp;
+        updateAll();
+        setInterval(updateAll, 60000);
     </script>
 </body>
 </html>
