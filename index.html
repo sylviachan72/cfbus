@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>長者友善智慧巴士天氣儀表板</title>
+    <title>置富巴士天氣儀表板</title>
     <style>
         /* 全域基本樣式重設 */
         *, *::before, *::after {
@@ -124,10 +124,17 @@
             color: #ffffff;
         }
 
-        /* 右欄排版樣式 (字體不小於 24px) */
+        /* 右欄排版樣式 */
+        .centered-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* 置中 */
+            text-align: center;
+        }
+
+        /* 時間與日期區塊 */
         .time-section {
-            margin-bottom: 12px;
-            padding: 0;
+            margin-bottom: 8px;
         }
         .clock-time {
             font-size: 96px;
@@ -147,10 +154,11 @@
             line-height: 1.1;
         }
 
-        /* 天氣區塊樣式（零縫隙貼合設計） */
+        /* 天氣區塊樣式 */
         .weather-section {
-            margin: 0;
+            margin: 0 0 16px 0;
             padding: 0;
+            width: 100%;
         }
         .weather-row1 {
             margin: 0;
@@ -159,16 +167,15 @@
             font-weight: bold;
             color: #ffffff;
             line-height: 1.1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
         }
         .weather-icon {
             width: 58px;
             height: 58px;
-            vertical-align: middle;
-            margin-right: 8px;
-            display: none; /* 由 JS 載入後顯示 */
-        }
-        .weather-humidity {
-            margin-left: 18px;
+            display: none;
         }
         .weather-row2 {
             margin: 0;
@@ -176,10 +183,12 @@
             font-size: 24px;
             font-weight: bold;
             line-height: 1.1;
+            display: flex;
+            justify-content: center;
+            gap: 30px;
         }
         .temp-min {
             color: #54a0ff;
-            margin-right: 22px;
         }
         .temp-max {
             color: #ff6b6b;
@@ -191,7 +200,16 @@
 
         /* 警告與特別提示區塊 */
         .alerts-section {
-            margin-top: 14px;
+            width: 100%;
+            margin-top: 10px;
+            text-align: left; 
+        }
+        
+        .warnings-wrapper {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 12px;
         }
         .warn-badge {
             background-color: #cc0000;
@@ -200,10 +218,8 @@
             font-weight: bold;
             padding: 6px 12px;
             border-radius: 10px;
-            margin-bottom: 8px;
             text-align: center;
-            display: block;
-            width: 100%;
+            display: inline-block; 
         }
         .no-alerts {
             color: #555555;
@@ -212,10 +228,9 @@
             margin-top: 8px;
         }
 
-        /* 垂直跑馬燈容器（精準控制3行高度） */
+        /* 垂直跑馬燈容器 */
         .marquee-wrapper {
-            margin-top: 12px;
-            height: 90px; /* 約3行文字的高度 */
+            height: 90px;
             overflow: hidden;
             position: relative;
             border-top: 1px dashed #222222;
@@ -228,14 +243,18 @@
             text-align: left;
             position: absolute;
             width: 100%;
-            animation: scrollUpText 18s linear infinite;
+            animation: scrollUpText 15s linear infinite;
         }
         .marquee-content p {
             margin: 0 0 10px 0;
             line-height: 1.25;
         }
+        .marquee-wrapper:hover .marquee-content {
+            animation-play-state: paused;
+        }
+
         @keyframes scrollUpText {
-            0% { transform: translateY(100%); }
+            0% { transform: translateY(90px); }
             100% { transform: translateY(-100%); }
         }
     </style>
@@ -258,27 +277,28 @@
             <div class="right-column">
                 <div class="scroll-container">
                     
-                    <div class="time-section">
-                        <div class="clock-time" id="clock-time">--:--</div>
-                        <div class="clock-date" id="clock-date">----年--月--日 星期-</div>
-                    </div>
+                    <div class="centered-container">
+                        <div class="time-section">
+                            <div class="clock-time" id="clock-time">--:--</div>
+                            <div class="clock-date" id="clock-date">----年--月--日 星期-</div>
+                        </div>
 
-                    <div class="weather-section">
-                        <div class="weather-row1">
-                            <img id="weather-img" class="weather-icon" src="" alt="天氣圖標">
-                            <span id="current-temp">--°C</span><span id="current-place" style="font-size:24px; color:#aaa;"></span>
-                            <span class="weather-humidity">💧 <span id="current-humidity">--%</span></span>
+                        <div class="weather-section">
+                            <div class="weather-row1">
+                                <img id="weather-img" class="weather-icon" src="" alt="天氣圖標">
+                                <span><span id="current-temp">--</span>°C</span>
+                                <span>💧 <span id="current-humidity">--</span>%</span>
+                            </div>
+                            <div class="weather-row2">
+                                <span class="temp-min"><i class="temp-icon">❄️</i><span id="min-temp">--°C</span></span>
+                                <span class="temp-max"><i class="temp-icon">☀️</i><span id="max-temp">--°C</span></span>
+                            </div>
                         </div>
-                        <div class="weather-row2">
-                            <span class="temp-min"><i class="temp-icon">❄️</i><span id="min-temp">--°C</span></span>
-                            <span class="temp-max"><i class="temp-icon">☀️</i><span id="max-temp">--°C</span></span>
-                        </div>
-                    </div>
+                    </div> 
 
                     <div class="alerts-section">
-                        <div id="warnings-container"></div>
+                        <div class="warnings-wrapper" id="warnings-container"></div>
                         <div class="no-alerts" id="no-alerts-msg" style="display: none;">現時沒有生效的警告/提示</div>
-                        
                         <div class="marquee-wrapper" id="marquee-wrapper">
                             <div class="marquee-content" id="marquee-box"></div>
                         </div>
@@ -291,43 +311,47 @@
     </div>
 
     <script>
-        // 巴士路線規格與圓角標籤底色設定
+        // 更新後的巴士路線與站點設定 (包含顏色、Stop ID及名稱)
         const routeMeta = {
-            '33X': { color: '#1e90ff', stop: '002184', stopName: '置富花園 1-7 座' },
-            '40':  { color: '#2ed573', stop: '002184', stopName: '置富花園 1-7 座' },
-            '95C': { color: '#ffa500', stop: '002184', stopName: '置富花園 1-7 座' },
-            '970X':{ color: '#9b59b6', stop: '002184', stopName: '置富花園 1-7 座' },
-            '38':  { color: '#ff4757', stop: '002184', stopName: '置富花園 1-7 座' },
-            '37A': { color: '#10ac84', stop: '001186', stopName: '雅緻洋房' },
-            '37B': { color: '#ff6b6b', stop: '001186', stopName: '雅緻洋房' },
-            '37X': { color: '#00d2d3', stop: '001186', stopName: '雅緻洋房' }
+            '33X': { color: '#1e90ff', stopName: '置富花園 1-7 座' },
+            '40':  { color: '#2ed573', stopName: '置富花園 1-7 座' },
+            '95C': { color: '#ffa500', stopName: '置富花園 1-7 座' },
+            '970X':{ color: '#9b59b6', stopName: '置富花園 1-7 座' },
+            '38':  { color: '#ff4757', stopName: '雅緻洋房' },
+            '37A': { color: '#10ac84', stopName: '置富總站' },
+            '37B': { color: '#ff6b6b', stopName: '置富總站' },
+            '37X': { color: '#00d2d3', stopName: '置富總站' }
         };
 
-        const routesGroup1 = ['33X', '40', '95C', '970X', '38'];
-        const routesGroup2 = ['37A', '37B', '37X'];
+        // 統一建立一個陣列來控制顯示順序與對應的站點代碼 (城巴Stop ID)
+        const allRoutesOrder = [
+            { route: '33X', stop: '002184' },
+            { route: '40',  stop: '002184' },
+            { route: '95C', stop: '002184' },
+            { route: '970X',stop: '002184' },
+            { route: '38',  stop: '001186' },
+            { route: '37A', stop: '002181' },
+            { route: '37B', stop: '002181' },
+            { route: '37X', stop: '002181' }
+        ];
 
-        // 天氣警告子類型中文對照表
         const warnMap = {
             'WFIREY': '黃色火災危險警告', 'WFIRER': '紅色火災危險警告',
-            'WRAINA': '黃色暴雨警告信號', 'WRAINR': '紅色暴雨警告信號', 'WRAINB': '黑色暴雨警告信號',
+            'WRAINA': '黃色暴雨警告', 'WRAINR': '紅色暴雨警告', 'WRAINB': '黑色暴雨警告',
             'TC1': '一號戒備信號', 'TC3': '三號強風信號',
             'TC8NE': '八號東北烈風或暴風信號', 'TC8SE': '八號東南烈風或暴風信號',
             'TC8SW': '八號西南烈風或暴風信號', 'TC8NW': '八號西北烈風或暴風信號',
             'TC9': '九號烈風或暴風風力增強信號', 'TC10': '十號颶風信號', 'CANCEL': '取消所有熱帶氣旋警告信號'
         };
 
-        // 即時更新時鐘功能 (每秒執行)
         function updateClock() {
             const now = new Date();
-            
-            // 12小時制時間格式化
             let hours = now.getHours();
             hours = hours % 12;
-            hours = hours ? hours : 12; // 0點顯示為12
+            hours = hours ? hours : 12; 
             const minutes = String(now.getMinutes()).padStart(2, '0');
             document.getElementById('clock-time').innerText = `${String(hours).padStart(2, '0')}:${minutes}`;
             
-            // 日期格式化
             const year = now.getFullYear();
             const month = now.getMonth() + 1;
             const date = now.getDate();
@@ -336,18 +360,15 @@
             document.getElementById('clock-date').innerText = `${year}年${month}月${date}日 ${dayName}`;
         }
 
-        // 串接政府資料開放平台獲取個別巴士路線 ETA
         async function fetchBusETA(route, stopId) {
             const url = `https://rt.data.gov.hk/v1/transport/citybus-nwfb/eta/CTB/${stopId}/${route}`;
             try {
                 const res = await fetch(url);
                 const json = await res.json();
                 if (json && json.data) {
-                    // 過濾出與目標站點相符且有預估時間的紀錄
                     let records = json.data.filter(item => item.stop === stopId && item.eta);
-                    // 按到達時間升序排列
                     records.sort((a, b) => new Date(a.eta) - new Date(b.eta));
-                    return records.slice(0, 3); // 僅取最近3個班次
+                    return records.slice(0, 3); 
                 }
             } catch (e) {
                 console.error(`無法獲取路線 ${route} 的資訊:`, e);
@@ -355,25 +376,17 @@
             return [];
         }
 
-        // 刷新巴士即時到站數據
         async function updateBusData() {
             const container = document.getElementById('bus-container');
-            let promises = [];
             
-            routesGroup1.forEach(r => promises.push(fetchBusETA(r, '002184')));
-            routesGroup2.forEach(r => promises.push(fetchBusETA(r, '001186')));
-            
+            // 根據 allRoutesOrder 順序同時發送請求
+            let promises = allRoutesOrder.map(info => fetchBusETA(info.route, info.stop));
             const results = await Promise.all(promises);
+            
             let combinedHtml = '';
-            let index = 0;
             
-            const allRoutesOrder = [
-                ...routesGroup1.map(r => ({ route: r, stop: '002184' })),
-                ...routesGroup2.map(r => ({ route: r, stop: '001186' }))
-            ];
-            
-            allRoutesOrder.forEach(routeInfo => {
-                const etas = results[index++];
+            allRoutesOrder.forEach((routeInfo, index) => {
+                const etas = results[index];
                 const meta = routeMeta[routeInfo.route];
                 let destination = '---';
                 let etaListHtml = '';
@@ -385,9 +398,8 @@
                         const etaTime = new Date(etaObj.eta);
                         const now = new Date();
                         const diffMins = Math.max(0, Math.floor((etaTime - now) / 60000));
-                        const timeStr = etaObj.eta.substring(11, 16); // 截取 HH:MM
+                        const timeStr = etaObj.eta.substring(11, 16); 
                         
-                        // 倒數少於10分鐘顯示紅色，否則顯示白色
                         const countdownClass = diffMins < 10 ? 'countdown-red' : 'countdown-white';
                         etaListHtml += `<span class="eta-item">${timeStr}<span class="${countdownClass}">(${diffMins}分鐘)</span></span>`;
                     });
@@ -412,10 +424,8 @@
             container.innerHTML = combinedHtml;
         }
 
-        // 串接天文台 API 獲取氣象數據
         async function updateWeatherData() {
             try {
-                // 同時請求實時天氣、9天預報、天氣警告摘要、特別天氣提示
                 const [rhr, fnd, warn, swt] = await Promise.all([
                     fetch('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=rhrread&lang=tc').then(r => r.json()),
                     fetch('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=fnd&lang=tc').then(r => r.json()),
@@ -423,23 +433,19 @@
                     fetch('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=swt&lang=tc').then(r => r.json())
                 ]);
 
-                // 1. 處理實時天氣 (優先選擇置富花園鄰近的「黃竹坑」測站，若無則選第一個)
                 let tempRecord = rhr.temperature.data.find(t => t.place === '黃竹坑') || rhr.temperature.data[0];
                 let currentTemp = tempRecord ? tempRecord.value : '--';
-                let placeName = tempRecord ? tempRecord.place : '香港';
                 let humidity = rhr.humidity.data[0] ? rhr.humidity.data[0].value : '--';
                 let iconId = rhr.icon[0];
 
-                document.getElementById('current-temp').innerText = `${currentTemp}°C`;
-                document.getElementById('current-place').innerText = `(${placeName})`;
-                document.getElementById('current-humidity').innerText = `${humidity}%`;
+                document.getElementById('current-temp').innerText = currentTemp;
+                document.getElementById('current-humidity').innerText = humidity;
+                
                 if (iconId) {
-                    // 使用天文台官方深色背景專用的透明線條版圖補 (HKOWxIconOutline)
                     document.getElementById('weather-img').src = `https://www.hko.gov.hk/images/HKOWxIconOutline/pic${iconId}.png`;
                     document.getElementById('weather-img').style.display = 'inline-block';
                 }
 
-                // 2. 處理今天最高與最低溫度預測
                 if (fnd.weatherForecast && fnd.weatherForecast.length > 0) {
                     let todayFnd = fnd.weatherForecast[0];
                     document.getElementById('min-temp').innerText = `${todayFnd.forecastMintemp.value}°C`;
@@ -447,8 +453,6 @@
                 }
 
                 let hasAlertsOrTips = false;
-
-                // 3. 處理天氣警告 (解析子類型)
                 let warningsHtml = '';
                 if (warn && Object.keys(warn).length > 0) {
                     for (let key in warn) {
@@ -462,7 +466,6 @@
                 }
                 document.getElementById('warnings-container').innerHTML = warningsHtml;
 
-                // 4. 處理特別天氣提示 (由下往上跑馬燈)
                 let swtHtml = '';
                 if (swt.specialWeatherTips && swt.specialWeatherTips.length > 0) {
                     hasAlertsOrTips = true;
@@ -477,7 +480,6 @@
                     document.getElementById('marquee-wrapper').style.display = 'none';
                 }
 
-                // 當兩者皆無時，顯示較暗的灰色提示文字
                 if (!hasAlertsOrTips) {
                     document.getElementById('no-alerts-msg').style.display = 'block';
                 } else {
@@ -489,12 +491,9 @@
             }
         }
 
-        // 全域調度刷新機制 (30秒更新一次)
         async function refreshDashboard() {
-            // 同步獲取巴士與天氣數據
             await Promise.all([updateBusData(), updateWeatherData()]);
             
-            // 更新頂部的「最後更新時間」(24小時制，不顯示上下午)
             const now = new Date();
             const hh = String(now.getHours()).padStart(2, '0');
             const mm = String(now.getMinutes()).padStart(2, '0');
@@ -502,13 +501,12 @@
             document.getElementById('update-timestamp').innerText = `${hh}:${mm}:${ss}`;
         }
 
-        // 初始化載入
         window.addEventListener('DOMContentLoaded', () => {
             updateClock();
-            setInterval(updateClock, 1000); // 時鐘每秒更新
+            setInterval(updateClock, 1000); 
             
             refreshDashboard();
-            setInterval(refreshDashboard, 30000); // 數據與最後更新時間每30秒更新
+            setInterval(refreshDashboard, 30000); 
         });
     </script>
 </body>
