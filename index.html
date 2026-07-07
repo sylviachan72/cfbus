@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>1240資訊看板</title>
+    <title>1255資訊看板</title>
     <style>
         /* 全域設定：極致緊湊、純黑背景 */
         * {
@@ -400,11 +400,11 @@
                 const rhrData = await rhrResponse.json();
 
                 if (rhrData) {
-                    // 提取溫度（優先找黃竹坑站，若無則取第一個站）
+                    // 提取溫度（優先找香港天文台站，若無則取第一個站）
                     let currentTemp = '--';
                     if (rhrData.temperature && rhrData.temperature.data) {
-                        const wchTemp = rhrData.temperature.data.find(item => item.place === '黃竹坑');
-                        currentTemp = wchTemp ? wchTemp.value : rhrData.temperature.data[0].value;
+                        const hkoTemp = rhrData.temperature.data.find(item => item.place === '香港天文台');
+                        currentTemp = hkoTemp ? hkoTemp.value : rhrData.temperature.data[0].value;
                     }
                     document.getElementById('curr-temp').innerText = `${currentTemp}°C`;
 
