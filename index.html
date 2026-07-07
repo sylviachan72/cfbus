@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>1255資訊看板</title>
+    <title>1326置富資訊看板</title>
     <style>
         /* 全域設定：極致緊湊、純黑背景 */
         * {
@@ -40,11 +40,11 @@
             overflow: hidden;
         }
 
-        /* 左欄：巴士資訊 (60%) */
+        /* 左欄：巴士資訊 (改為 70%) */
         .left-col {
-            width: 60%;
+            width: 70%;
             border-right: 2px solid #222222;
-            padding: 4px 8px;
+            padding: 4px 12px;
             overflow-y: auto;
             scrollbar-width: none; /* 隱藏滾動條 (Firefox) */
         }
@@ -52,9 +52,9 @@
             display: none; /* 隱藏滾動條 (Chrome/Safari) */
         }
 
-        /* 右欄：時間與天氣 (40%) */
+        /* 右欄：時間與天氣 (改為 30%) */
         .right-col {
-            width: 40%;
+            width: 30%;
             padding: 4px 8px;
             display: flex;
             flex-direction: column;
@@ -65,9 +65,9 @@
             display: none;
         }
 
-        /* 巴士路線單行樣式 */
+        /* 巴士路線單行樣式 (配合 70% 放大字體) */
         .bus-row {
-            padding: 6px 0;
+            padding: 8px 0;
             border-bottom: 1px solid #222222;
             word-wrap: break-word;
         }
@@ -75,31 +75,31 @@
             display: flex;
             align-items: center;
             flex-wrap: wrap;
-            gap: 6px;
-            margin-bottom: 2px;
+            gap: 8px;
+            margin-bottom: 4px;
         }
         .bus-tag {
             color: #ffffff;
             font-weight: bold;
-            font-size: 32px;
-            padding: 2px 12px;
+            font-size: 36px; /* 放大 */
+            padding: 2px 14px;
             border-radius: 12px;
             display: inline-block;
-            min-width: 90px;
+            min-width: 100px;
             text-align: center;
         }
         .bus-dest {
-            font-size: 32px;
+            font-size: 36px; /* 放大 */
             font-weight: bold;
             color: #ffffff;
         }
         .bus-stop {
-            font-size: 32px;
+            font-size: 36px; /* 放大 */
             font-weight: bold;
             color: #ffffff;
         }
         .bus-eta-container {
-            font-size: 34px;
+            font-size: 40px; /* 放大 */
             font-weight: bold;
             margin-top: 2px;
             padding-left: 4px;
@@ -118,55 +118,55 @@
             color: #ffffff; /* 多於10分鐘顯示白色 */
         }
 
-        /* 右欄：時間區塊 (緊湊置中) */
+        /* 右欄：時間區塊 (配合 30% 縮小字體以防超出) */
         .time-block {
             text-align: center;
             margin-bottom: 0px;
         }
         #current-time {
-            font-size: 96px;
+            font-size: 80px; /* 縮小 */
             font-weight: bold;
             color: #ffffff;
             line-height: 1.0;
         }
         #current-date {
-            font-size: 24px;
+            font-size: 20px; /* 縮小 */
             font-weight: bold;
             color: #ffffff;
-            margin-top: -4px; /* 讓日期極致緊貼時間 */
+            margin-top: -2px;
         }
 
-        /* 右欄：天氣報告區塊 (零縫隙貼合) */
+        /* 右欄：天氣報告區塊 */
         .weather-block {
             text-align: center;
-            margin-top: 4px;
+            margin-top: 6px;
         }
         .weather-row1 {
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 32px;
+            font-size: 28px; /* 縮小 */
             font-weight: bold;
             color: #ffffff;
             gap: 8px;
         }
         .weather-icon-img {
-            width: 48px;
-            height: 48px;
+            width: 42px; /* 縮小 */
+            height: 42px;
             object-fit: contain;
         }
         .weather-row2 {
-            font-size: 24px;
+            font-size: 20px; /* 縮小 */
             font-weight: bold;
-            margin-top: 0px; /* 零縫隙貼合第一行 */
+            margin-top: 2px;
             display: flex;
             justify-content: center;
-            gap: 16px;
+            gap: 12px;
         }
         .temp-max { color: #ff4d4d; }
         .temp-min { color: #4da6ff; }
 
-        /* 天氣警告區塊 - 修改為平排緊湊顯示 */
+        /* 天氣警告區塊 - 平排緊湊顯示 */
         .warning-block {
             margin-top: 8px;
             display: flex;
@@ -177,17 +177,17 @@
         .warning-tag {
             background-color: #cc0000; /* 紅色圓角底 */
             color: #ffffff;            /* 白字 */
-            font-size: 24px;
+            font-size: 20px; /* 縮小 */
             font-weight: bold;
-            padding: 4px 12px;
-            border-radius: 10px;
+            padding: 4px 10px;
+            border-radius: 8px;
         }
         .no-warning {
-            font-size: 24px;
+            font-size: 20px; /* 縮小 */
             color: #666666; /* 較暗的灰色 */
             font-weight: bold;
             padding: 4px 0;
-            width: 100%; /* 確保無警告時文字能單獨佔滿置中 */
+            width: 100%;
             text-align: center;
         }
 
@@ -195,13 +195,13 @@
         .swt-block {
             margin-top: 8px;
             border-top: 1px dashed #333333;
-            padding-top: 4px;
-            height: 90px; /* 限制約 3 行高度 */
+            padding-top: 6px;
+            height: 90px;
             overflow: hidden;
             position: relative;
         }
         .swt-marquee-content {
-            font-size: 24px;
+            font-size: 20px; /* 縮小 */
             color: #ffffff;
             text-align: left;
             position: absolute;
@@ -380,7 +380,7 @@
                                         <span class="bus-tag" style="background-color: ${bus.color};">${bus.route}</span>
                                         <span class="bus-stop">📍${bus.name}</span>
                                     </div>
-                                    <div class="bus-eta-container" style="color: #666666; font-size:30px;">現時沒有即時班次資訊</div>
+                                    <div class="bus-eta-container" style="color: #666666;">現時沒有即時班次資訊</div>
                                 </div>
                             `;
                         }
